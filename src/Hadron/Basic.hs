@@ -212,13 +212,15 @@ decodeReducerInput
     -> ConduitM a (CompositeKey, b) m ()
 decodeReducerInput mro mrInPrism =
     sourceHandle stdin =$=
+    C.mapM (\a -> liftIO (hPutStrLn stderr ("A:" ++ show a)) >> pure a) =$=
     lineC (numSegs (_mroPart mro)) =$=
+    C.mapM (\a -> liftIO (hPutStrLn stderr ("B:" ++ show a)) >> pure a) =$=
     C.mapMaybe (_2 (firstOf mrInPrism))
 
 
 -------------------------------------------------------------------------------
 reducerMain
-    :: MROptions
+    :: (Show a) => MROptions
     -> Prism' B.ByteString a
     -> Reducer CompositeKey a B.ByteString
     -> IO ()
@@ -229,7 +231,7 @@ reducerMain mro p f = do
 
 -- | Create a reducer program.
 reducer
-    :: MROptions
+    :: (Show a) => MROptions
     -> Prism' B.ByteString a
     -- ^ Input conversion function
     -> Reducer CompositeKey a b
@@ -243,6 +245,7 @@ reducer mro@MROptions{..} mrInPrism f = do
     where
       go2 = do
         next <- await
+        liftIO $ hPutStrLn stderr (show next)
         case next of
           Nothing -> return ()
           Just x -> do
@@ -278,7 +281,7 @@ reducer mro@MROptions{..} mrInPrism f = do
 
 -------------------------------------------------------------------------------
 mapReduce
-    :: MROptions
+    :: (Show a) => MROptions
     -> Prism' B.ByteString a
     -- ^ Serialization for data between map and reduce stages
     -> Mapper B.ByteString CompositeKey a
@@ -300,7 +303,7 @@ mapReduce mro mrInPrism f g = (mp, rd)
 -- > ./myProgram map
 -- > ./myProgram reduce
 mapReduceMain
-    :: MROptions
+    :: (Show a) => MROptions
     -> Prism' B.ByteString a
     -- ^ Serialization function for the in-between data 'a'.
     -> Mapper B.ByteString CompositeKey a
@@ -333,8 +336,3 @@ commandParse = subparser
    <> command "reduce" (info (pure Reduce)
         ( progDesc "Run reducer" ))
     )
-
-
-
-
-

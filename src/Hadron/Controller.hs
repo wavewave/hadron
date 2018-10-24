@@ -301,7 +301,7 @@ f <.< (MapReduce o p m c r) = MapReduce o p (f =$= m) c r
 -------------------------------------------------------------------------------
 -- | A packaged MapReduce step. Make one of these for each distinct
 -- map-reduce step in your overall 'Controller' flow.
-data MapReduce a b = forall k v. MRKey k => MapReduce {
+data MapReduce a b = forall k v. (MRKey k, Show v) => MapReduce {
       _mrOptions  :: MROptions
     -- ^ Hadoop and MapReduce options affecting only this specific
     -- job.
@@ -1323,7 +1323,7 @@ joinStep fs = MapReduce mro pSerialize mp Nothing (Left rd)
 -- TODO: Wrap around this with a better API so the user doesn't have
 -- to care.
 joinMR
-    :: forall a b k v. (MRKey k, Monoid v, Serialize v)
+    :: forall a b k v. (MRKey k, Monoid v, Serialize v, Show v)
     => Mapper (Either a b) k (Either v v)
     -- ^ Mapper for the input
     -> MapReduce (Either a b) v
