@@ -71,7 +71,7 @@ import qualified Data.ByteString.Char8        as B
 import qualified Data.ByteString.Lazy.Char8   as LB
 import           Data.Conduit
 import           Data.Conduit.Binary          (sinkHandle, sourceHandle)
-import           Data.Conduit.Blaze
+import           Data.Conduit.ByteString.Builder (builderToByteString)
 import qualified Data.Conduit.List            as C
 import           Data.List
 import           Data.Monoid
@@ -187,7 +187,7 @@ setLineBuffering = do
 -- | Appropriately produce lines of mapper output in a way compliant
 -- with Hadoop and 'decodeReducerInput'.
 encodeMapOutput
-    :: (PrimMonad base, MonadBase base m)
+    :: (PrimMonad m)
     => Prism' B.ByteString b
     -> Conduit (CompositeKey, b) m B.ByteString
 encodeMapOutput mrInPrism = C.map conv $= builderToByteString

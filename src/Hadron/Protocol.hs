@@ -53,7 +53,7 @@ import qualified Data.ByteString.Base64           as Base64
 import qualified Data.ByteString.Char8            as B
 import           Data.Conduit
 import           Data.Conduit.Attoparsec
-import           Data.Conduit.Blaze
+import           Data.Conduit.ByteString.Builder  (builderToByteString)
 import qualified Data.Conduit.List                as C
 import           Data.Conduit.Zlib                (gzip, ungzip)
 import           Data.CSV.Conduit

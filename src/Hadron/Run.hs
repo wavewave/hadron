@@ -163,13 +163,14 @@ hdfsMkdir rc fp = case rc of
     HadoopRun he _ -> H.hdfsMkdir he fp
 
 
+
 -------------------------------------------------------------------------------
 hdfsCat
     :: RunContext
     -> FilePath
     -> Producer (ResourceT IO) B.ByteString
 hdfsCat rc fp = case rc of
-    LocalRun lcs -> hoist (hoist (L.runLocal lcs)) $ L.hdfsCat (LocalFile fp)
+    LocalRun lcs -> transPipe (transResourceT (L.runLocal lcs)) $ L.hdfsCat (LocalFile fp)
     HadoopRun{} -> hdfsLocalStream rc fp
 
 
